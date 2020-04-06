@@ -77,7 +77,7 @@ int LLFS_Init(LLFS_Interface *LLFS_i){
 	memcpy(&int_buf, &mgc, 4);
 	memcpy(&int_buf[1], &max_blocks, 4);
 	memcpy(&int_buf[2], &max_inodes, 4);
-	printf("superblock written\n");
+	//printf("superblock written\n");
 
 	//free inode vector;
 	memset(char_buf, 255, BLOCK_SIZE);
@@ -87,7 +87,7 @@ int LLFS_Init(LLFS_Interface *LLFS_i){
 
 
 	writeBlock(int_buf, 512, 1, 0);
-	printf("free inode block written\n");
+	//printf("free inode block written\n");
 
 
 	//init free block vector
@@ -105,7 +105,7 @@ int LLFS_Init(LLFS_Interface *LLFS_i){
 	for (int i = 2; i<4096; i++){
 		writeBlock(int_buf, BLOCK_SIZE, 1, i);
 	}
-	printf("rest of disk cleared \n");
+	//printf("rest of disk cleared \n");
 
 	//create root directory and add to superblock
 	newDirectory(10);
@@ -119,13 +119,14 @@ int LLFS_Init(LLFS_Interface *LLFS_i){
 	writeBlock(block, 512, 1, 0);
 
 	getInodeBlock(1);
-	//printf("Init complete\n");
 
-	printf("root etc added\n");
+
+	//printf("root etc added\n");
 	char* rootpath = "/";
 	memcpy(LLFS_i->path, rootpath, 1);
 	LLFS_i->path_len = 1;
 	LLFS_i->inodes++;
+	printf("Init complete\n");
 	return 1;
 }
 
