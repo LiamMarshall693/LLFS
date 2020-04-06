@@ -77,7 +77,6 @@ int LLFS_Init(LLFS_Interface *LLFS_i){
 	memcpy(&int_buf, &mgc, 4);
 	memcpy(&int_buf[1], &max_blocks, 4);
 	memcpy(&int_buf[2], &max_inodes, 4);
-	//printf("superblock written\n");
 
 	//free inode vector;
 	memset(char_buf, 255, BLOCK_SIZE);
@@ -94,7 +93,7 @@ int LLFS_Init(LLFS_Interface *LLFS_i){
 	//initially, first 10 are cleared, rest are set
 	memset(char_buf, 255, BLOCK_SIZE);
 	char_buf[0] = 0;
-	char_buf[1] = 63;
+	char_buf[1] = 0b00111111;
 	writeBlock(char_buf, 512, 1, 1);
 
 	//inode map block
@@ -121,12 +120,10 @@ int LLFS_Init(LLFS_Interface *LLFS_i){
 	getInodeBlock(1);
 
 
-	printf("root etc added\n");
-	//char* rootpath = "/";
-	//memcpy(LLFS_i->path, rootpath, 1);
-	printf("memcpy\n");
+
+
 	LLFS_i->path_len = 1;
-	printf("path_len added\n");
+
 	LLFS_i->inodes++;
 	printf("Init complete\n");
 	return 1;
@@ -191,7 +188,7 @@ int setIVector(short int inodeNum){
 
 	int off = inodeNum/8 + 16;
 	int r = inodeNum%8;
-	printf("setIVector %d off = %d r = %d\n", inodeNum, off, r);
+	//printf("setIVector %d off = %d r = %d\n", inodeNum, off, r);
 
 	if (r == 0) block[off] = block[off] | 128;
 	if (r == 1) block[off] = block[off] | 64;
@@ -371,17 +368,18 @@ short int getInodeBlock(short int id){
 }
 
 short int setInodeBlock(short int id, short int blocknum){
+	printf("St setInodeBLock with id = %d, bn = %d\n", id, blocknum);
 	char block[512];
 	readBlock(2, block);
 	memcpy(&block[id*2], &blocknum, 2);
-	writeBlock(block, 512, 0, 2);
+	writeBlock(block, 512, 1, 2);
 	return 1;
 }
 
 struct inode readPath(char *path, short int path_len){
 	//char str[path_len];
 	//memcpy(str, path, pathlen);
-	printf("Start readPath w/ str = %s\n", path);
+	printf("Start readPath\n");
 
 	short int root_Inode_BlockNum = getInodeBlock(1);
 	char dir_inode_Block[BLOCK_SIZE];
@@ -578,12 +576,12 @@ int removeFile(struct inode in){
  */
 
 int replaceEntry(struct inode dir, int index){
-	printf("Start replace with filesize of parent = %d\n", dir.filesize);
+	//printf("Start replace with filesize of parent = %d\n", dir.filesize);
 	char bufferfrom[BLOCK_SIZE];
 	memset(bufferfrom, 0, BLOCK_SIZE);
 	readBlock(dir.blocknumbers[(dir.filesize-1)/16], bufferfrom);
 
-	printf("from = %d to = %d\n", (index%16)*32, ((dir.filesize-1)%16)*32);
+	//printf("from = %d to = %d\n", (index%16)*32, ((dir.filesize-1)%16)*32);
 	char bufferto[BLOCK_SIZE];
 	memset(bufferto, 0, BLOCK_SIZE);
 	readBlock(dir.blocknumbers[index/16], bufferto);
@@ -640,6 +638,44 @@ int checkInBuffer(LLFS_Interface *LLFS_i, char* name, short int name_len){
 	return -1;
 }
 
+int checkAllocations(int blocknum){
+	clrBVector(blocknum);
+
+	char inode_block[BLOCK_SIZE];
+	memset(inode_block, 0, BLOCK_SIZE);
+	readBlock(blocknum, inode_block);
+
+	int size;
+	memcpy(&size, inode_block, 4);
+	int flags;
+	memcpy(&flags, &inode_block[4], 4);
+	short int blocknumbers[10];
+	memcpy(blocknumbers, &inode_block[8], 20);
+	short int sing_ind;
+	memcpy(&sing_ind, &inode_block[28], 2);
+
+	for (int i = 0; i < 10; i++){
+		if (blocknumbers[i] != 0){
+			clrBVector(blocknumbers[i]);
+		}
+	}
+
+	if (flags == 1){
+		char dir_block[BLOCK_SIZE];
+		for (int i = 0; i < (size/8)+1;i++){
+			readBlock(blocknumbers[i], dir_block);
+			short int id;
+			for (int j = 0; j < 16; j++){
+				memcpy(&id, &dir_block[j*32], 1);
+				clrIVector(id);
+				checkAllocations(getInodeBlock(id));
+			}
+		}
+	}
+
+	return 1;
+}
+
 int writeBuffer(LLFS_Interface *LLFS_i, short int logHead){
 	printf("Start writeBuffer\n");
 	int count = 0;
@@ -678,6 +714,8 @@ int writeBuffer(LLFS_Interface *LLFS_i, short int logHead){
 		//stores an existing file or a modification
 		//If modification, we need to set the old inode to point to the new file data, and clear
 		//out the new inode again
+
+		printf("updates[%d] = %d\n", count_inodes, LLFS_i->updates[count_inodes]);
 		if (LLFS_i->updates[count_inodes] != 0){
 			short int id = LLFS_i->updates[count_inodes];
 			setInodeBlock(id, getInodeBlock(in.id));
@@ -805,7 +843,7 @@ int LLFS_new(LLFS_Interface *LLFS_i, char* name, char* data, int size){
 	LLFS_i->buffer = realloc(LLFS_i->buffer, new_size);
 	char* buffer = LLFS_i->buffer;
 	memset(&(LLFS_i->buffer)[LLFS_i->size], 0, new_size - LLFS_i->size);
-	printf("Realloc complete, LLFS_i->path = %s\n", LLFS_i->path);
+	//printf("Realloc complete, LLFS_i->path = %s\n", LLFS_i->path);
 
 	memcpy(buffer + LLFS_i->size, &size, 4);
 	memcpy(&buffer[LLFS_i->size+4], &path_len, 2);
@@ -826,7 +864,7 @@ int LLFS_new(LLFS_Interface *LLFS_i, char* name, char* data, int size){
 
 
 	//test:
-	printf("starting writeBuffer\n");
+	//printf("starting writeBuffer\n");
 
 	//printf("LLFS_i->path = %s\n", LLFS_i->path);
 
@@ -1046,7 +1084,7 @@ int LLFS_rm(LLFS_Interface *LLFS_i, char* name){
 		return -1;
 	}
 
-	printf("dir.id = %d\n", getInodeBlock(dir.id));
+	//printf("dir.id = %d\n", getInodeBlock(dir.id));
 	//read working directory to find file to remove
 	char dir_block[BLOCK_SIZE];
 
@@ -1063,12 +1101,12 @@ int LLFS_rm(LLFS_Interface *LLFS_i, char* name){
 
 			memcpy(filename, &dir_block[k*32+1], 31);
 			int match = 1;
-			printf("Checking token agsinst str: %s\n", filename);
+			//printf("Checking token agsinst str: %s\n", filename);
 			for (int l = 0; l < strlen(name) && l < 31; l++){
-				printf("%c.%c ", filename[l], name[l]);
+				//printf("%c.%c ", filename[l], name[l]);
 				if (filename[l] != name[l]) match = 0;
 			}
-			printf("\n");
+			//printf("\n");
 
 			if (match == 1){//found the next directory
 				//printf("match found\n");
@@ -1109,6 +1147,21 @@ int LLFS_rm(LLFS_Interface *LLFS_i, char* name){
 	writeBlock(inode_block, 512, 1, getInodeBlock(dir.id));
 	return 1;
 
+}
+
+int LLFS_fsck(LLFS_Interface *LLFS_i){
+	char vector_block[BLOCK_SIZE];
+	memset(vector_block, 255 , BLOCK_SIZE);
+	vector_block[0] = 0;
+	vector_block[1] = 0b00001111;
+	writeBlock(vector_block, 512,1,1);
+
+
+	readBlock(0, vector_block);
+	memset(&vector_block[16], 255 , 32);
+	vector_block[0] = 0b00111111;
+	checkAllocations(11); // 11 is always root inode
+	return 1;
 }
 
 #ifdef TESTING

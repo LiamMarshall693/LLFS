@@ -44,7 +44,7 @@ int main(int argc, char *argv[])
 	name = "SubDirectory";
 	LLFS_mkdir(LLFS, name);
 
-	printf("Moving to SubDirectory");
+	printf("Moving to SubDirectory\n");
 	path = "/TestDirectory/SubDirectory/";
 	LLFS_cd(LLFS, path);
 
@@ -59,7 +59,6 @@ int main(int argc, char *argv[])
 
 	path = "/";
 	LLFS_cd(LLFS, path);
-	printf("BACK TO ROOT\n");
 
 	LLFS_ls(LLFS);
 
@@ -68,6 +67,8 @@ int main(int argc, char *argv[])
 	LLFS_modify(LLFS, name, data, BLOCK_SIZE);
 
 	LLFS_flush(LLFS);
+
+	LLFS_fsck(LLFS);
 
 	//struct inode a = writeInode(512,10, 0);
 
