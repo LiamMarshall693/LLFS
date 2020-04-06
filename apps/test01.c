@@ -11,7 +11,9 @@ int main(int argc, char *argv[])
 	printf("Beginning test01\n");
 
 	LLFS_Interface *LLFS = OpenLLFS();
+	printf("Open complete\n");
 	LLFS_Init(LLFS);
+	printf("Init complete\n");
 
 	char data[BLOCK_SIZE];
 	memset(data, 0, 512);
