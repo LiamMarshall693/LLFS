@@ -18,13 +18,13 @@ int main(int argc, char *argv[])
 	for (int i = 0; i < 255; i++) data[i] = i;
 	char* name = "TestFile1";
 
-	printf("Adding TestFile1");
+	printf("Adding TestFile1\n");
 	LLFS_new(LLFS, name, data, 512);
 
 	for (int i = 0; i < 255; i++) data[i] = 255-i;
 	name = "TestFile2.txt";
 
-	printf("Adding TestFile2");
+	printf("Adding TestFile2\n");
 	LLFS_new(LLFS, name, data, 512);
 
 	printf("Adding TestDirectory\n");
@@ -35,7 +35,7 @@ int main(int argc, char *argv[])
 
 	char * path = "/TestDirectory/";
 
-	printf("Moving to TestDirectory");
+	printf("Moving to TestDirectory\n");
 	LLFS_cd(LLFS, path);
 
 	printf("Adding SubDirectory\n");
