@@ -22,4 +22,4 @@ file.o: ./../io/File.c ./../io/File.h
 
 clean:
 	rm -rf *.o
-	find apps -type f -not -name '*.c' -print0 | xargs -0 rm --
+	find ./../ -type f -not -name '*.c' -print0 | xargs -0 rm --
