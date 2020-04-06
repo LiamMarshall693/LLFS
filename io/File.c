@@ -634,7 +634,7 @@ int checkInBuffer(LLFS_Interface *LLFS_i, char* name, short int name_len){
 }
 
 int writeBuffer(LLFS_Interface *LLFS_i, short int logHead){
-	//printf("Start writeBuffer\n");
+	printf("Start writeBuffer\n");
 	int count = 0;
 	int count_inodes = 0;
 	while (count < LLFS_i->size){
@@ -752,7 +752,7 @@ int writeBuffer(LLFS_Interface *LLFS_i, short int logHead){
 }
 
 LLFS_Interface* OpenLLFS(){
-	//printf("OPenLLFS start\n");
+	printf("OPenLLFS start\n");
 
 	LLFS_Interface *n = (LLFS_Interface*) malloc(sizeof(LLFS_Interface));
 	n->buffer = (char*) malloc(1);
@@ -775,7 +775,7 @@ LLFS_Interface* OpenLLFS(){
 }
 
 int LLFS_new(LLFS_Interface *LLFS_i, char* name, char* data, int size){
-	//printf("new start\n");
+	printf("new start\n");
 
 
 	char superblock[BLOCK_SIZE];
