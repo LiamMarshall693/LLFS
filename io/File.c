@@ -123,7 +123,7 @@ int LLFS_Init(LLFS_Interface *LLFS_i){
 
 	printf("root etc added\n");
 	char* rootpath = "/";
-	memcpy(LLFS_i->path, rootpath, 1);
+	//memcpy(LLFS_i->path, rootpath, 1);
 	printf("memcpy\n");
 	LLFS_i->path_len = 1;
 	printf("path_len added\n");
