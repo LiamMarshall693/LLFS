@@ -121,7 +121,7 @@ int LLFS_Init(LLFS_Interface *LLFS_i){
 	getInodeBlock(1);
 
 
-	//printf("root etc added\n");
+	printf("root etc added\n");
 	char* rootpath = "/";
 	memcpy(LLFS_i->path, rootpath, 1);
 	LLFS_i->path_len = 1;
@@ -762,6 +762,7 @@ LLFS_Interface* OpenLLFS(){
 	LLFS_Interface *n = (LLFS_Interface*) malloc(sizeof(LLFS_Interface));
 	n->buffer = (char*) malloc(1);
 	n->path = "/";
+	n->path_len = 1;
 	//printf("Mallocs complete\n");
 	n->blocks = 0;
 	n->size = 0;
