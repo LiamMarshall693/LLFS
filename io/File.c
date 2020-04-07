@@ -610,7 +610,6 @@ int removeFile(struct inode in){
  */
 
 int replaceEntry(struct inode dir, int index){
-	printf("replacing entry %d, from = %d, to = %d\n", index, dir.filesize, index/16);
 	char bufferfrom[BLOCK_SIZE];
 	memset(bufferfrom, 0, BLOCK_SIZE);
 	readBlock(dir.blocknumbers[(dir.filesize-1)/16], bufferfrom);
