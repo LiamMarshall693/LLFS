@@ -2,7 +2,7 @@
 #include <stdlib.h>
 
 
-#define DATA_BLOCKS 4078
+#define DATA_BLOCKS 4086
 #define MAX_INODES 255
 #define MAGIC_NUM 1397115980
 

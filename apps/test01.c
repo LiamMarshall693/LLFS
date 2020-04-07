@@ -12,6 +12,7 @@ int main(int argc, char *argv[])
 
 	LLFS_Interface *LLFS = OpenLLFS();
 	printf("Open complete\n");
+
 	LLFS_Init(LLFS);
 	printf("Init complete\n");
 
@@ -23,16 +24,19 @@ int main(int argc, char *argv[])
 	printf("Adding TestFile1\n");
 	LLFS_new(LLFS, name, data, 512);
 
-	for (int i = 0; i < 255; i++) data[i] = 255-i;
 	name = "TestFile2.txt";
 
+	//11 blocks needed, so demonstrates single indirect block
+	char databigger[5632];
+	for (int i = 0; i < 5632; i++) databigger[i] = 119;
 	printf("Adding TestFile2\n");
-	LLFS_new(LLFS, name, data, 512);
+	LLFS_new(LLFS, name, databigger, 5632);
 
 	printf("Adding TestDirectory\n");
 	name = "TestDirectory";
 	LLFS_mkdir(LLFS, name);
 
+	printf("Testing ls:\n");
 	LLFS_ls(LLFS);
 
 	char * path = "/TestDirectory/";
@@ -48,28 +52,14 @@ int main(int argc, char *argv[])
 	path = "/TestDirectory/SubDirectory/";
 	LLFS_cd(LLFS, path);
 
+	printf("Adding SubSubDirectory\n");
 	name = "SubSubDirectory";
 	LLFS_mkdir(LLFS, name);
 
+	printf("Testing ls:\n");
 	LLFS_ls(LLFS);
 	path = "/TestDirectory/SubDirectory/SubSubDirectory/";
 	LLFS_cd(LLFS, path);
 
-
-
-	path = "/";
-	LLFS_cd(LLFS, path);
-
-	LLFS_ls(LLFS);
-
-	name = "TestFile2.txt";
-	for (int i = 0; i < 255; i++) data[i] = 'A';
-	LLFS_modify(LLFS, name, data, BLOCK_SIZE);
-
-	LLFS_flush(LLFS);
-
-	LLFS_fsck(LLFS);
-
-	//struct inode a = writeInode(512,10, 0);
-
+	printf("Done test01\n");
 }
