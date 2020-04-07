@@ -12,7 +12,7 @@ int main(int argc, char *argv[])
 
 	LLFS_Interface *LLFS = OpenLLFS();
 
-	printf"Corrupting free block vector...\n");
+	printf("Corrupting free block vector...\n");
 	//simulates corruption by randomly setting bits in the free block vector that
 	//should be cleared.
 	char block[BLOCK_SIZE];
