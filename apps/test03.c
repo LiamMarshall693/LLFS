@@ -24,7 +24,7 @@ int main(int argc, char *argv[])
 	//uncomment to see it fixed
 
 	//printf("Fixing free block vector
-	LLFS_fsck(LLFS);
+	//LLFS_fsck(LLFS);
 
 
 	LLFS_flush(LLFS);
